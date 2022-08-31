@@ -17,9 +17,9 @@ interface AddressData {
 }
 
 interface AdressSelectProps {
-  onChange: (value?: ID) => void;
+  onChange: (value?: ID[]) => void;
   onProvinceChange: (value?: ID) => void;
-  data: {
+  data?: {
     name: string | string[];
   };
   form?: FormInstance;
@@ -40,31 +40,33 @@ const AdressSelect = (props: AdressSelectProps) => {
     data,
     form,
     addressData = defAddressData as AddressData[],
+    ...otherProps
   } = props;
 
   const onProvinceChange = useCallback(
     (value: ID) => {
+      if (userOnProvinceChange) {
+        userOnProvinceChange(value);
+      }
+      if (data == null) return;
       const isDeepPath = isArray(data.name);
       const field = isDeepPath
         ? [...(dropRight(data.name) as string[]), 'province']
         : 'province';
-      if (userOnProvinceChange) {
-        userOnProvinceChange(value);
-      }
       if (form) {
         setTimeout(() => {
           form.setFieldsValue(set({}, field, value));
         }, 1);
       }
     },
-    [data],
+    [data, userOnProvinceChange],
   );
 
   const onChange = useCallback(
     (values: ID[]) => {
       const isEmpty = !isArray(values) || values == null;
-      userOnChange && userOnChange(isEmpty ? undefined : values.join(' '));
-      if (!isEmpty && form && data) {
+      userOnChange && userOnChange(isEmpty ? undefined : values);
+      if (!isEmpty) {
         onProvinceChange && onProvinceChange(values[0]);
       }
     },
@@ -82,7 +84,7 @@ const AdressSelect = (props: AdressSelectProps) => {
         children: 'childNodes',
       }}
       placeholder="请选择所在城市"
-      {...props}
+      {...otherProps}
       onChange={onChange}
     />
   );
