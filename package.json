@@ -6,6 +6,7 @@
   "main": "lib/index.es.js",
   "module": "src",
   "browser": "lib/index.umd.cjs",
+  "types": "lib/index.d.ts",
   "scripts": {
     "build": "vite build",
     "build:example": "cross-env VITE_ENV=dev vite build --emptyOutDir",

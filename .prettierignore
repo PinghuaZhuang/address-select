@@ -22,3 +22,5 @@ CNAME
 /build
 /public
 /docs
+
+addressData.js
