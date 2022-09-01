@@ -30,6 +30,8 @@ interface AdressSelectProps {
   };
   form?: FormInstance;
   addressData?: AddressData[];
+  provinceField?: string;
+  addressField?: string;
 }
 
 function isArray(obj: any) {
@@ -44,34 +46,40 @@ const AdressSelect = (props: AdressSelectProps) => {
     onChange: userOnChange,
     onProvinceChange: userOnProvinceChange,
     onAddressChange: userOnAddressChange,
+    provinceField = 'province',
+    addressField = 'address',
     data,
     form,
     addressData = defAddressData as AddressData[],
     ...otherProps
   } = props;
   const [visible, setVisible] = useState(false);
-  const field = useMemo(() => {
-    if (data == null) return;
-    const isDeepPath = isArray(data.name);
-    const _field = isDeepPath
-      ? [...(dropRight(data.name) as string[]), 'province']
-      : 'province';
-    return _field;
-  }, [data]);
+
+  const getField = useCallback(
+    (field: string) => {
+      if (data == null) return;
+      const isDeepPath = isArray(data.name);
+      const _field = isDeepPath
+        ? [...(dropRight(data.name) as string[]), field]
+        : field;
+      return _field;
+    },
+    [data],
+  );
 
   const onProvinceChange = useCallback(
     (value: ID) => {
       if (userOnProvinceChange) {
         userOnProvinceChange(value);
       }
-      if (field == null) return;
-      if (form) {
+      const field = getField(provinceField);
+      if (form && field) {
         setTimeout(() => {
           form.setFieldsValue(set({}, field, value));
         }, 1);
       }
     },
-    [field, userOnProvinceChange, form],
+    [data, userOnProvinceChange, form],
   );
 
   const onChange = useCallback(
@@ -88,14 +96,14 @@ const AdressSelect = (props: AdressSelectProps) => {
   const onAddressChange = useCallback(
     (value: string) => {
       userOnAddressChange && userOnAddressChange(value);
-      if (field == null) return;
-      if (form) {
+      const field = getField(addressField);
+      if (form && field) {
         setTimeout(() => {
           form.setFieldsValue(set({}, field, value));
         }, 1);
       }
     },
-    [userOnAddressChange, field, form],
+    [userOnAddressChange, data, form],
   );
 
   const toggleMap = useCallback(() => {
@@ -143,9 +151,7 @@ const AdressSelect = (props: AdressSelectProps) => {
           {...otherProps}
           onChange={onChange}
         />
-        <span className="ant-input-group-addon">
-          <Button onClick={toggleMap} icon={<MapIcon />} />
-        </span>
+        <Button onClick={toggleMap} icon={<MapIcon />} />
       </div>
       <div
         id={tmapId}
