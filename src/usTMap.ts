@@ -45,6 +45,7 @@ export default function useTMap(
                 onChangeRef.current({
                   ...address.address_component,
                   latLng: poi.latLng,
+                  name: poi.name,
                 });
               }
             });
@@ -55,6 +56,7 @@ export default function useTMap(
         });
       })
       .catch((e) => {
+        console.error(`<<< 腾讯地图初始化失败.`, e);
         onError && onError(e);
       });
   }, []);

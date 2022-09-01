@@ -20,6 +20,7 @@ export interface Address {
   province: string;
   street: string;
   street_number: string;
+  name: string;
 }
 
 export interface LatLng {

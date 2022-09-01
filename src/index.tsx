@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Cascader, Button } from 'antd';
+import { useCallback, useEffect, useState, useMemo } from 'react';
+import { Cascader, Button, message } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import dropRight from 'lodash/dropRight';
 import set from 'lodash/set';
+import styles from './style.module.less';
+import type { Address } from './utils';
 import useTMap from './usTMap';
 // @ts-ignore
-import MapIcon from './icon';
-// @ts-ignore
 import defAddressData from './addressData';
-import styles from './style.module.less';
-import classNames from 'classnames';
+// @ts-ignore
+import MapIcon from './icon';
 
 type ID = number | string;
 
@@ -24,6 +24,7 @@ interface AddressData {
 interface AdressSelectProps {
   onChange: (value?: ID[]) => void;
   onProvinceChange: (value?: ID) => void;
+  onAddressChange?: (value: string) => void;
   data?: {
     name: string | string[];
   };
@@ -36,37 +37,41 @@ function isArray(obj: any) {
 }
 
 const defaultGetPopupContainer = (el: HTMLElement) =>
-  el.parentElement as HTMLElement;
+  el.parentElement?.parentElement as HTMLElement;
 
 const AdressSelect = (props: AdressSelectProps) => {
   const {
     onChange: userOnChange,
     onProvinceChange: userOnProvinceChange,
+    onAddressChange: userOnAddressChange,
     data,
     form,
     addressData = defAddressData as AddressData[],
     ...otherProps
   } = props;
-  const [tmapId, initMap] = useTMap(console.log);
   const [visible, setVisible] = useState(false);
+  const field = useMemo(() => {
+    if (data == null) return;
+    const isDeepPath = isArray(data.name);
+    const _field = isDeepPath
+      ? [...(dropRight(data.name) as string[]), 'province']
+      : 'province';
+    return _field;
+  }, [data]);
 
   const onProvinceChange = useCallback(
     (value: ID) => {
       if (userOnProvinceChange) {
         userOnProvinceChange(value);
       }
-      if (data == null) return;
-      const isDeepPath = isArray(data.name);
-      const field = isDeepPath
-        ? [...(dropRight(data.name) as string[]), 'province']
-        : 'province';
+      if (field == null) return;
       if (form) {
         setTimeout(() => {
           form.setFieldsValue(set({}, field, value));
         }, 1);
       }
     },
-    [data, userOnProvinceChange],
+    [field, userOnProvinceChange, form],
   );
 
   const onChange = useCallback(
@@ -80,9 +85,41 @@ const AdressSelect = (props: AdressSelectProps) => {
     [userOnChange, onProvinceChange],
   );
 
+  const onAddressChange = useCallback(
+    (value: string) => {
+      userOnAddressChange && userOnAddressChange(value);
+      if (field == null) return;
+      if (form) {
+        setTimeout(() => {
+          form.setFieldsValue(set({}, field, value));
+        }, 1);
+      }
+    },
+    [userOnAddressChange, field, form],
+  );
+
   const toggleMap = useCallback(() => {
     setVisible((v) => !v);
   }, []);
+
+  const onTMapChange = useCallback(
+    (address: Address) => {
+      const values = [
+        address.province,
+        address.city,
+        address.district,
+        // address.street_number,
+      ];
+      onChange(values);
+      onAddressChange(address.name);
+    },
+    [onChange, onAddressChange],
+  );
+
+  const [tmapId, initMap] = useTMap(onTMapChange, () => {
+    message.error(`地图初始化失败`);
+    setVisible(false);
+  });
 
   useEffect(() => {
     if (visible) {
@@ -91,7 +128,7 @@ const AdressSelect = (props: AdressSelectProps) => {
   }, [visible]);
 
   return (
-    <div>
+    <span>
       <div className={styles.container}>
         <Cascader
           getPopupContainer={defaultGetPopupContainer}
@@ -118,7 +155,7 @@ const AdressSelect = (props: AdressSelectProps) => {
           display: visible ? 'block' : 'none',
         }}
       ></div>
-    </div>
+    </span>
   );
 };
 
