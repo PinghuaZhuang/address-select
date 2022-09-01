@@ -2,7 +2,7 @@
 
 地址选择器. 使用腾讯地图选择具体地址.
 
-[[![deploy](https://github.com/PinghuaZhuang/address-select/actions/workflows/deploy.yml/badge.svg)](https://github.com/PinghuaZhuang/address-select/actions/workflows/deploy.yml)](https://github.com/PinghuaZhuang/address-select/actions/workflows/publish.yml)
+[![deploy](https://github.com/PinghuaZhuang/address-select/actions/workflows/deploy.yml/badge.svg)](https://github.com/PinghuaZhuang/address-select/actions/workflows/deploy.yml)
 
 ## Example
 
