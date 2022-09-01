@@ -6,7 +6,7 @@ import legacy from '@vitejs/plugin-legacy';
 import typescript from '@rollup/plugin-typescript';
 
 const isDev = process.env.VITE_ENV === 'dev';
-console.log('APP_TMAP_KEY', process.env.APP_TMAP_KEY);
+const APP_TMAP_KEY = 'Y5UBZ-7QE6P-B3PDK-VCTDL-4DRVK-OPFCI';
 
 function resolve(url: string) {
   return path.resolve(__dirname, url);
@@ -66,9 +66,6 @@ export default defineConfig({
       },
     },
   },
-  define: {
-    TMAP_KEY: JSON.stringify(process.env.APP_TMAP_KEY),
-  },
   plugins: isDev
     ? [
         legacy(),
@@ -85,7 +82,7 @@ export default defineConfig({
                 {
                   tag: 'script',
                   attrs: {
-                    src: `https://map.qq.com/api/gljs?v=1.exp&libraries=service&key=${process.env.APP_TMAP_KEY}`,
+                    src: `https://map.qq.com/api/gljs?v=1.exp&libraries=service&key=${APP_TMAP_KEY}`,
                   },
                   injectTo: 'head',
                 },
