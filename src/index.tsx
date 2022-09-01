@@ -3,7 +3,6 @@ import { Cascader, Button } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import dropRight from 'lodash/dropRight';
 import set from 'lodash/set';
-import { getLocation } from './utils';
 import useTMap from './usTMap';
 // @ts-ignore
 import MapIcon from './icon';
@@ -30,7 +29,6 @@ interface AdressSelectProps {
   };
   form?: FormInstance;
   addressData?: AddressData[];
-  className?: string;
 }
 
 function isArray(obj: any) {
@@ -47,10 +45,9 @@ const AdressSelect = (props: AdressSelectProps) => {
     data,
     form,
     addressData = defAddressData as AddressData[],
-    className,
     ...otherProps
   } = props;
-  const [tmapId, initMap, destroy] = useTMap(() => console);
+  const [tmapId, initMap] = useTMap(console.log);
   const [visible, setVisible] = useState(false);
 
   const onProvinceChange = useCallback(
@@ -84,7 +81,6 @@ const AdressSelect = (props: AdressSelectProps) => {
   );
 
   const toggleMap = useCallback(() => {
-    console.log(1);
     setVisible((v) => !v);
   }, []);
 
@@ -107,9 +103,7 @@ const AdressSelect = (props: AdressSelectProps) => {
             children: 'childNodes',
           }}
           placeholder="请选择所在城市"
-          // suffixIcon={<span onClick={toggleMap}><MapIcon /></span>}
           {...otherProps}
-          className={classNames(styles, className)}
           onChange={onChange}
         />
         <span className="ant-input-group-addon">
