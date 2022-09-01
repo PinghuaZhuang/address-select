@@ -1,10 +1,16 @@
-import { useCallback, useEffect } from 'react';
-import { Cascader } from 'antd';
+import { useCallback, useEffect, useState } from 'react';
+import { Cascader, Button } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import dropRight from 'lodash/dropRight';
 import set from 'lodash/set';
+import { getLocation } from './utils';
+import useTMap from './usTMap';
+// @ts-ignore
+import MapIcon from './icon';
 // @ts-ignore
 import defAddressData from './addressData';
+import styles from './style.module.less';
+import classNames from 'classnames';
 
 type ID = number | string;
 
@@ -24,6 +30,7 @@ interface AdressSelectProps {
   };
   form?: FormInstance;
   addressData?: AddressData[];
+  className?: string;
 }
 
 function isArray(obj: any) {
@@ -40,8 +47,11 @@ const AdressSelect = (props: AdressSelectProps) => {
     data,
     form,
     addressData = defAddressData as AddressData[],
+    className,
     ...otherProps
   } = props;
+  const [tmapId, initMap, destroy] = useTMap(() => console);
+  const [visible, setVisible] = useState(false);
 
   const onProvinceChange = useCallback(
     (value: ID) => {
@@ -73,20 +83,48 @@ const AdressSelect = (props: AdressSelectProps) => {
     [userOnChange, onProvinceChange],
   );
 
+  const toggleMap = useCallback(() => {
+    console.log(1);
+    setVisible((v) => !v);
+  }, []);
+
+  useEffect(() => {
+    if (visible) {
+      initMap();
+    }
+  }, [visible]);
+
   return (
-    <Cascader
-      getPopupContainer={defaultGetPopupContainer}
-      options={addressData}
-      expandTrigger="hover"
-      fieldNames={{
-        label: 'name',
-        value: 'name',
-        children: 'childNodes',
-      }}
-      placeholder="请选择所在城市"
-      {...otherProps}
-      onChange={onChange}
-    />
+    <div>
+      <div className={styles.container}>
+        <Cascader
+          getPopupContainer={defaultGetPopupContainer}
+          options={addressData}
+          expandTrigger="hover"
+          fieldNames={{
+            label: 'name',
+            value: 'name',
+            children: 'childNodes',
+          }}
+          placeholder="请选择所在城市"
+          // suffixIcon={<span onClick={toggleMap}><MapIcon /></span>}
+          {...otherProps}
+          className={classNames(styles, className)}
+          onChange={onChange}
+        />
+        <span className="ant-input-group-addon">
+          <Button onClick={toggleMap} icon={<MapIcon />} />
+        </span>
+      </div>
+      <div
+        id={tmapId}
+        style={{
+          width: '100%',
+          marginTop: 20,
+          display: visible ? 'block' : 'none',
+        }}
+      ></div>
+    </div>
   );
 };
 

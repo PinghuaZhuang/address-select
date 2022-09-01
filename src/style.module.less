@@ -1,0 +1,23 @@
+.container {
+  display: inline-flex;
+  align-items: center;
+
+  button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    position: relative;
+    left: -1px;
+  }
+
+  button:focus {
+    z-index: 10;
+  }
+
+  :global {
+    .ant-select {
+      z-index: 1;
+    }
+  }
+}
