@@ -6,6 +6,7 @@ import legacy from '@vitejs/plugin-legacy';
 import typescript from '@rollup/plugin-typescript';
 
 const isDev = process.env.VITE_ENV === 'dev';
+console.log('APP_TMAP_KEY', process.env.APP_TMAP_KEY);
 
 function resolve(url: string) {
   return path.resolve(__dirname, url);
@@ -65,6 +66,9 @@ export default defineConfig({
       },
     },
   },
+  define: {
+    TMAP_KEY: JSON.stringify(process.env.APP_TMAP_KEY),
+  },
   plugins: isDev
     ? [
         legacy(),
@@ -72,6 +76,23 @@ export default defineConfig({
         createStyleImportPlugin({
           resolves: [AntdResolve()],
         }),
+        {
+          name: 'TMapKey',
+          transformIndexHtml(html) {
+            return {
+              html,
+              tags: [
+                {
+                  tag: 'script',
+                  attrs: {
+                    src: `https://map.qq.com/api/gljs?v=1.exp&libraries=service&key=${process.env.APP_TMAP_KEY}`,
+                  },
+                  injectTo: 'head',
+                },
+              ],
+            };
+          },
+        },
       ]
     : [],
 });
